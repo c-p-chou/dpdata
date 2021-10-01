@@ -29,6 +29,7 @@ setuptools.setup(
               'dpdata/lammps', 
               'dpdata/md', 
               'dpdata/deepmd', 
+              'dpdata/dcdftbmd', 
               'dpdata/qe', 
               'dpdata/siesta', 
               'dpdata/gaussian', 
