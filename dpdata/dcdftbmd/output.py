@@ -11,7 +11,7 @@ def get_frames (fname, begin = 0, step = 1) :
     if not os.path.isdir(fname):
         raise RuntimeError('fname must be a folder')
     
-    eV = 2.72113838565563E+01 # hatree to eV
+    eV = 2.72113838565563E+01 # hartree to eV
     angstrom = 5.29177208590000E-01 # Bohr to Angstrom
 
     root_path = Path(fname)
@@ -23,17 +23,19 @@ def get_frames (fname, begin = 0, step = 1) :
                 arr = line.split()
                 lattice.append(list(map(float, arr[1:4])))
     lattice_frame = np.array(lattice)
+
+
     energy_matcher = re.compile(
-        r'^\s+Final \w+-DFTB Energy =\s+([-+]?\d*\.*\d+)')
+        r'^\s+Final .*-DFTB Energy =\s+([-+]?\d*\.*\d+)')
     
     forces = []
     energies = []
     cur_step = -1
     with open(root_path.joinpath('dftb.out')) as fin:
         for line in fin:
-            cur_step += 1
             res = energy_matcher.match(line)
             if res:
+                cur_step += 1
                 _ = next(fin)
                 _ = next(fin)
                 line = next(fin)
@@ -56,7 +58,7 @@ def get_frames (fname, begin = 0, step = 1) :
                 forces.append(force_frame)
                 energy_frame = float(res.group(1))*eV
                 energies.append(energy_frame)
-                
+
     forces_array = np.array(forces, dtype=float)
     forces_array = forces_array * eV / angstrom
     cur_step = -1
@@ -94,6 +96,7 @@ def get_frames (fname, begin = 0, step = 1) :
 
     lattices = [lattice_frame for _ in range(len(coordinates))]
     
+    # print(len(forces), len(energies), len(coordinates))
 
     return atom_names, atom_numbs, atom_types, \
         np.array(lattices), np.array(coordinates), np.array(energies), \
