@@ -1,4 +1,4 @@
-**dpdata** is a python package for manipulating DeePMD-kit, VASP, LAMMPS data formats.
+**dpdata** is a python package for manipulating data formats of software in computational science, including DeePMD-kit, VASP, LAMMPS, GROMACS, Gaussian.
 dpdata only works with python 3.x.
 
 
@@ -80,6 +80,9 @@ The `System` or `LabeledSystem` can be constructed from the following file forma
 | Amber   | multi       | True         | True    | LabeledSystem | 'amber/md'           |
 | Amber/sqm | sqm.out   | False        | False   | System        | 'sqm/out'            |
 | Gromacs | gro         | True         | False   | System        | 'gromacs/gro'        |
+| ABACUS  | STRU        | False        | True    | LabeledSystem | 'abacus/scf'         |
+| ABACUS  | cif         | True         | True    | LabeledSystem | 'abacus/md'          |
+| ase     | structure   | True         | True    | MultiSystems  | 'ase/structure'      |
 
 
 The Class `dpdata.MultiSystems`  can read data  from a dir which may contains many files of different systems, or from single xyz file which contains different systems.
@@ -87,7 +90,7 @@ The Class `dpdata.MultiSystems`  can read data  from a dir which may contains ma
 Use `dpdata.MultiSystems.from_dir` to read from a  directory, `dpdata.MultiSystems` will walk in the directory 
 Recursively  and  find all file with specific file_name. Supports all the file formats that `dpdata.LabeledSystem` supports.
 
-Use  `dpdata.MultiSystems.from_file` to read from single file. Now only support quip/gap/xyz  format file.
+Use  `dpdata.MultiSystems.from_file` to read from single file. Single-file support is available for the `quip/gap/xyz` and `ase/structure` formats.
 
 For example, for `quip/gap xyz` files, single .xyz file may contain many different configurations with different atom numbers and atom type.
 
@@ -116,7 +119,7 @@ xyz_multi_systems.to_deepmd_raw('./my_deepmd_data/')
 ```
 
 You may also use the following code to parse muti-system:
-```
+```python
 from dpdata import LabeledSystem,MultiSystems
 from glob import glob
 """
@@ -255,7 +258,7 @@ If a valence of 3 is detected on carbon, the formal charge will be assigned to -
 
 # Plugins
 
-One can follow [a simple example](plugin_example/) to add their own format by creating and installing plugins. It's crirical to add the [Format](dpdata/format.py) class to `entry_points['dpdata.plugins']` in `setup.py`:
+One can follow [a simple example](plugin_example/) to add their own format by creating and installing plugins. It's critical to add the [Format](dpdata/format.py) class to `entry_points['dpdata.plugins']` in `setup.py`:
 ```py
     entry_points={
         'dpdata.plugins': [

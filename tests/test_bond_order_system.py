@@ -2,11 +2,21 @@ import os
 import unittest
 from context import dpdata
 import glob
-from rdkit import Chem
-from rdkit.Chem import AllChem
+try:
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+    from dpdata import BondOrderSystem
+except ImportError:
+    skip_bond_order_system = True
+else:
+    skip_bond_order_system = False
+
 import shutil
 import numpy as np
+from copy import deepcopy
 
+
+@unittest.skipIf(skip_bond_order_system, "dpdata does not have BondOrderSystem. One may install rdkit to fix.")
 class TestBondOrderSystem(unittest.TestCase):
 
     def test_from_rdkit_mol(self):
@@ -77,6 +87,16 @@ class TestBondOrderSystem(unittest.TestCase):
             for ii in range(3):
                 self.assertEqual(syst['bonds'][bond_idx][ii], bonds[bond_idx][ii])
         shutil.rmtree("bond_order/methane")
+    
+    def test_dump_to_sdf_file(self):
+        s1 = dpdata.BondOrderSystem("bond_order/methane.sdf", fmt="sdf")
+        s2 = deepcopy(s1)
+        s2.data["coords"] += 1.0
+        s2.to_sdf_file("bond_order/test.sdf")
+
+        nsyst = dpdata.BondOrderSystem("bond_order/test.sdf", fmt="sdf")
+        self.assertEqual(nsyst["coords"][0, 0, 0] - s1["coords"][0, 0, 0], 1.0)
+        os.remove("bond_order/test.sdf")
     
     def test_sanitize_mol_obabel(self):
         cnt = 0
